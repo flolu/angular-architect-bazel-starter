@@ -1,0 +1,5 @@
+filegroup(
+    name = "angular_json",
+    srcs = ["angular.json"],
+    visibility = ["//:__subpackages__"],
+)

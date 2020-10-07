@@ -1,0 +1,66 @@
+load("@npm//@angular-devkit/architect-cli:index.bzl", "architect")
+
+filegroup(
+    name = "common_deps",
+    srcs = [
+        "tsconfig.base.json",
+    ],
+    data = ["//:angular_json"],
+    visibility = ["//client:__subpackages__"],
+)
+
+APPLICATION_DEPS = [
+    ":common_deps",
+    "@npm//@angular/cli",
+    "@npm//@angular/core",
+    "@npm//@angular/router",
+    "@npm//@angular/platform-browser-dynamic",
+    "@npm//@angular-devkit/build-angular",
+    "@npm//rxjs",
+    "@npm//mime",
+    "@npm//zone.js",
+    "@npm//tslib",
+    "@npm//typescript",
+]
+
+architect(
+    name = "build_prod",
+    args = [
+        "client:build:production",
+        "--outputPath=$(@D)",
+    ],
+    configuration_env_vars = ["NG_BUILD_CACHE"],
+    data = glob(
+        [
+            "src/**/*",
+        ],
+        exclude = [
+            "src/**/*.spec.ts",
+            "src/test.ts",
+        ],
+    ) + APPLICATION_DEPS + [
+        "tsconfig.app.json",
+    ] + ["//:angular_json"],
+    output_dir = True,
+)
+
+architect(
+    name = "serve",
+    args = [
+        "client:serve",
+    ],
+    configuration_env_vars = ["NG_BUILD_CACHE"],
+    data = glob(
+        [
+            "src/*",
+            "src/**",
+        ],
+        exclude = [
+            "src/**/*.spec.ts",
+            "src/test.ts",
+        ],
+    ) + APPLICATION_DEPS + [
+        "tsconfig.app.json",
+    ],
+    tags = ["ibazel_notify_changes"],
+)
